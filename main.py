@@ -227,6 +227,7 @@ def game_loop():
 def main(argv):
     global display_width
     global display_height
+    global display_size
 
     msg_help = '''\
     Options: 
@@ -265,6 +266,8 @@ def main(argv):
         if opt in ('-h', "--height", "--display_height"):
             display_height = int(arg)
             print("Set display height to " + str(display_height))
+
+    display_size = (display_width, display_height)
 
     init()
 
