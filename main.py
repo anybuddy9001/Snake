@@ -174,12 +174,6 @@ def game_loop():
             del snake_list[0]
 
         # Try to eat
-        # - for one food item only -> deprecated
-        # if abs(snake_x - food_x) <= 10 and abs(snake_y - food_y) <= 10:
-        #     del food_list[0]
-        #     add_food(food_list)
-        #     snake_length += 1
-        # - for multiple food items on the board
         for food_element in food_list:
             if abs(food_element[0] - snake_head[0]) <= 10 and abs(food_element[1] - snake_head[1]) <= 10:
                 food_list.remove(food_element)
