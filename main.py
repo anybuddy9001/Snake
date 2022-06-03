@@ -1,8 +1,8 @@
 import sys
 import getopt
+import random
 import pygame
 import pygame.freetype
-import random
 
 # Window properties
 display_width = 600
