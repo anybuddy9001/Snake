@@ -47,7 +47,7 @@ def init():
 
 
 # noinspection PyUnresolvedReferences,PyTypeChecker
-def paint(snake, food, draw_tooltip=False):
+def paint(snake, food, points, draw_tooltip=False):
     # Draw background
     display.fill(blue)
 
@@ -61,7 +61,6 @@ def paint(snake, food, draw_tooltip=False):
 
     # Draw Scores
     # Current Points
-    points = (len(snake) - 1)
     GAME_FONT.render_to(display, (10, 10), "Score: " + str(points), white)
 
     # Current high score
@@ -105,7 +104,9 @@ def game_loop():
 
     snake_list = []
     snake_length = 1
-    previous_length = snake_length
+    previous_snake_length = 1
+
+    points = 0
 
     snake_x = display_size[0] // 2
     snake_y = display_size[1] // 2
@@ -119,7 +120,7 @@ def game_loop():
     food_list = []
     add_food(food_list)
 
-    paint(snake_list, food_list, True)
+    paint(snake_list, food_list, points, True)
 
     while not game_over:
         # Register key inputs
@@ -212,7 +213,7 @@ def game_loop():
             previous_length = snake_length
 
         # Next Frame
-        paint(snake_list, food_list)
+        paint(snake_list, food_list, points)
 
         clock.tick(snake_speed + speed_modifier)
 
