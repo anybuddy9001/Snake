@@ -5,7 +5,7 @@ import pygame.freetype
 import random
 
 # Window properties
-display_width = 500
+display_width = 600
 display_height = 600
 display_size = (display_width, display_width)
 # ToDo Refactor to only use 'display_size'
