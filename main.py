@@ -15,6 +15,10 @@ GAME_FONT = None
 snake_size = 10
 snake_speed = 15
 
+# Lists
+snake_list = []
+food_list = []
+
 high_score = -1
 
 # RGB-Colors
@@ -44,6 +48,14 @@ def init():
     except FileNotFoundError:
         print("No Font file named 'font.ttf' found. Please put one next to this script!")
         exit(2)
+
+
+def reset():
+    global snake_list
+    global food_list
+
+    food_list = []
+    snake_list = []
 
 
 # noinspection PyUnresolvedReferences,PyTypeChecker
@@ -88,21 +100,24 @@ def die(snake_length):
     if points > high_score:
         high_score = points
 
+    reset()
+
 
 # noinspection PyUnresolvedReferences
-def add_food(food_list):
+def add_food():
+    global food_list
+
     food_x = random.randint(50, display_size[0] - 20)
     food_y = random.randint(50, display_size[1] - 20)
     food_list.append((food_x, food_y))
 
 
 # noinspection PyUnresolvedReferences
-def game_loop():
+def game_loop(starting_food_amount: int):
     game_stop = False
     game_over = False
     speed_modifier = 0
 
-    snake_list = []
     snake_length = 1
     previous_snake_length = 1
 
@@ -117,8 +132,10 @@ def game_loop():
     x_direction = 0
     y_direction = 0
 
-    food_list = []
-    add_food(food_list)
+    # add starting food
+    if starting_food_amount > 0:
+        for i in range(starting_food_amount):
+            add_food()
 
     paint(snake_list, food_list, points, True)
 
@@ -177,7 +194,7 @@ def game_loop():
         for food_element in food_list:
             if abs(food_element[0] - snake_head[0]) <= 10 and abs(food_element[1] - snake_head[1]) <= 10:
                 food_list.remove(food_element)
-                add_food(food_list)
+                add_food()
                 snake_length += 1
 
         # Scaling
@@ -223,12 +240,15 @@ def main(argv):
     global display_height
     global display_size
 
+    starting_food_amount = 1
+
     msg_help = '''\
     Options: 
         -h  --help                      Print this help
         -c  --controls                  Show the controls for the game
         -dw --display_width --width     Set display width [default: {display_width}] 
         -dh --display_height --height   Set display height [default: {display_height}]
+        -f  --starting-food             Sets the amount of food on startup
         '''.format(display_width=display_width, display_height=display_height)
     msg_controls = '''\
     Controls:
@@ -241,8 +261,9 @@ def main(argv):
     '''
 
     try:
-        opts, args = getopt.getopt(argv, 'cw:h:',
-                                   ["help", "controls", "display_width=", "width=", "display_height=", "height="])
+        opts, args = getopt.getopt(argv, 'cw:h:f:', [
+            "help", "controls", "display_width=", "width=", "display_height=", "height=", "starting-food="
+        ])
     except getopt.GetoptError:
         print("Error: Unknown arguments")
         print(msg_help)
@@ -260,6 +281,8 @@ def main(argv):
         if opt in ('-h', "--height", "--display_height"):
             display_height = int(arg)
             print("Set display height to " + str(display_height))
+        if opt in ('-f', "--starting-food"):
+            starting_food_amount = int(arg)
 
     display_size = (display_width, display_height)
 
@@ -267,7 +290,7 @@ def main(argv):
 
     while True:
         print("Starting new game!")
-        game_loop()
+        game_loop(starting_food_amount)
 
 
 if __name__ == '__main__':
