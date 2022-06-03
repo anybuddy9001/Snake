@@ -183,7 +183,7 @@ def game_loop():
             if abs(food_element[0] - snake_head[0]) <= 10 and abs(food_element[1] - snake_head[1]) <= 10:
                 food_list.remove(food_element)
                 add_food(food_list)
-                snake_length += 3
+                snake_length += 1
 
         # Check for Death
         # Wall
