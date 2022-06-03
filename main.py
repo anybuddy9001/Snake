@@ -180,17 +180,6 @@ def game_loop():
                 add_food(food_list)
                 snake_length += 1
 
-        # Check for Death
-        # Wall
-        if snake_x > display_size[0] - 10 or snake_y > display_size[1] or snake_x < 0 or snake_y < 0:
-            die(snake_length)
-            game_over = True
-        # Tail biting
-        for x in snake_list[:-1]:
-            if x == snake_head:
-                die(snake_length)
-                game_over = True
-
         # Scaling
         points = snake_length - 1
         if not snake_length == previous_snake_length:
@@ -198,14 +187,25 @@ def game_loop():
                 if points % 3 == 0:
                     speed_modifier += 1
                 if points % 10 == 0:
-                    add_food(food_list)
+                    add_food()
             if points > 30:
                 if points % 25 == 0:
                     speed_modifier += 1
                 if points % 30 == 0:
-                    add_food(food_list)
+                    add_food()
 
             previous_snake_length = snake_length
+
+        # Check for Death
+        # Wall
+        if snake_x > display_size[0] - 10 or snake_y > display_size[1] or snake_x < 0 or snake_y < 0:
+            die(points)
+            game_over = True
+        # Tail biting
+        for x in snake_list[:-1]:
+            if x == snake_head:
+                die(points)
+                game_over = True
 
         # Next Frame
         paint(snake_list, food_list, points)
