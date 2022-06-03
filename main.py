@@ -7,9 +7,7 @@ import random
 # Window properties
 display_width = 600
 display_height = 600
-display_size = (display_width, display_width)
-# ToDo Refactor to only use 'display_size'
-#  - Check for errors in spawn and death behavior with different sizes
+display_size = None
 
 GAME_FONT = None
 
@@ -69,13 +67,13 @@ def paint(snake, food, draw_tooltip=False):
     # Current high score
     offset = 140 + 12 * (len(str(high_score)) - 1)
     if high_score == -1:
-        GAME_FONT.render_to(display, (display_width - offset + 12, 10), "High Score: -", white)
+        GAME_FONT.render_to(display, (display_size[0] - offset + 12, 10), "High Score: -", white)
     else:
-        GAME_FONT.render_to(display, (display_width - offset, 10), "High Score: " + str(high_score), white)
+        GAME_FONT.render_to(display, (display_size[0] - offset, 10), "High Score: " + str(high_score), white)
 
     # Draw Tooltip
     if draw_tooltip:
-        loc = (display_width // 4, 80)
+        loc = (display_size[0] // 4, 80)
         GAME_FONT.render_to(display, (loc[0], loc[1]), "Press the arrow keys to play", white)
         GAME_FONT.render_to(display, (loc[0] + 50, loc[1] + 30), "Press 'Q' to Quit", white)
 
@@ -92,9 +90,10 @@ def die(snake_length):
         high_score = points
 
 
+# noinspection PyUnresolvedReferences
 def add_food(food_list):
-    food_x = random.randint(50, display_width - 50)
-    food_y = random.randint(50, display_height - 150)
+    food_x = random.randint(50, display_size[0] - 20)
+    food_y = random.randint(50, display_size[1] - 20)
     food_list.append((food_x, food_y))
 
 
@@ -108,8 +107,8 @@ def game_loop():
     snake_length = 1
     previous_length = snake_length
 
-    snake_x = display_width // 2
-    snake_y = display_height // 2
+    snake_x = display_size[0] // 2
+    snake_y = display_size[1] // 2
 
     snake_head = (snake_x, snake_y)
     snake_list.append(snake_head)
@@ -188,7 +187,7 @@ def game_loop():
 
         # Check for Death
         # Wall
-        if snake_x > display_width - 10 or snake_y > display_height - 100 or snake_x < 0 or snake_y < 0:
+        if snake_x > display_size[0] - 10 or snake_y > display_size[1] or snake_x < 0 or snake_y < 0:
             die(snake_length)
             game_over = True
         # Tail biting
