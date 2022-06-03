@@ -198,19 +198,20 @@ def game_loop():
                 game_over = True
 
         # Scaling
-        if not snake_length == previous_length:
-            if snake_length <= 30:
-                if snake_length % 3 == 0:
+        points = snake_length - 1
+        if not snake_length == previous_snake_length:
+            if points <= 30:
+                if points % 3 == 0:
                     speed_modifier += 1
-                if snake_length % 10 == 0:
+                if points % 10 == 0:
                     add_food(food_list)
-            if snake_length > 30:
-                if snake_length % 25 == 0:
+            if points > 30:
+                if points % 25 == 0:
                     speed_modifier += 1
-                if snake_length % 30 == 0:
+                if points % 30 == 0:
                     add_food(food_list)
 
-            previous_length = snake_length
+            previous_snake_length = snake_length
 
         # Next Frame
         paint(snake_list, food_list, points)
