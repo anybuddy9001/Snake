@@ -225,8 +225,8 @@ def main(argv):
 
     msg_help = '''\
     Options: 
-        -h --help                       Print this help
-        -c --controls                   Show the controls for the game
+        -h  --help                      Print this help
+        -c  --controls                  Show the controls for the game
         -dw --display_width --width     Set display width [default: {display_width}] 
         -dh --display_height --height   Set display height [default: {display_height}]
         '''.format(display_width=display_width, display_height=display_height)
