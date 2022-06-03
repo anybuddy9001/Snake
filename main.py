@@ -91,9 +91,9 @@ def paint(snake, food, points, draw_tooltip=False):
     pygame.display.update()
 
 
-def die(snake_length):
+def die(points):
     global high_score
-    points = snake_length - 1
+
     print("Game Over")
     print("You ate", points, "pieces of food")
 
@@ -143,7 +143,7 @@ def game_loop(starting_food_amount: int):
         # Register key inputs
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                die(snake_length)
+                die(snake_length - 1)
                 game_over = True
                 game_stop = True
 
@@ -167,7 +167,7 @@ def game_loop(starting_food_amount: int):
                         y_direction = snake_size
                 # Quit the game
                 if event.key == pygame.K_q:
-                    die(snake_length)
+                    die(snake_length - 1)
                     game_over = True
                     game_stop = True
 
