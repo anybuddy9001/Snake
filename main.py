@@ -245,14 +245,14 @@ def main(argv):
     '''
 
     try:
-        opts, args = getopt.getopt(argv, 'hc',
+        opts, args = getopt.getopt(argv, 'cw:h:',
                                    ["help", "controls", "display_width=", "width=", "display_height=", "height="])
     except getopt.GetoptError:
         print("Error: Unknown arguments")
         print(msg_help)
         sys.exit(2)
     for opt, arg in opts:
-        if opt in ('-h', "--help"):
+        if opt == "--help":
             print(msg_help)
             exit(0)
         if opt in ('-c', "--controls"):
