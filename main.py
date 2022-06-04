@@ -59,7 +59,7 @@ def reset():
 
 
 # noinspection PyUnresolvedReferences,PyTypeChecker
-def paint(snake, food, points, draw_tooltip=False):
+def paint(snake: list, food: list, points: int, draw_tooltip=False):
     # Draw background
     display.fill(blue)
 
@@ -91,7 +91,7 @@ def paint(snake, food, points, draw_tooltip=False):
     pygame.display.update()
 
 
-def die(points):
+def die(points: int):
     global high_score
 
     print("Game Over")
@@ -235,7 +235,7 @@ def game_loop(starting_food_amount: int):
         exit(0)
 
 
-def main(argv):
+def main(argv: list):
     global display_width
     global display_height
     global display_size
