@@ -100,8 +100,6 @@ def die(points: int):
     if points > high_score:
         high_score = points
 
-    reset()
-
 
 # noinspection PyUnresolvedReferences
 def add_food():
@@ -118,6 +116,7 @@ def game_loop(starting_food_amount: int):
     game_stop = False
     game_over = False
     speed_modifier = 0
+    reset()
 
     snake_length = 1
     previous_snake_length = 1
