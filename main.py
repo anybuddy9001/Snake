@@ -114,6 +114,7 @@ def add_food():
 
 # noinspection PyUnresolvedReferences
 def game_loop(starting_food_amount: int):
+    # Per Game setup
     game_stop = False
     game_over = False
     speed_modifier = 0
@@ -139,6 +140,7 @@ def game_loop(starting_food_amount: int):
 
     paint(snake_list, food_list, points, True)
 
+    # Main game loop
     while not game_over:
         # Register key inputs
         for event in pygame.event.get():
