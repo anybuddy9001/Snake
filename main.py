@@ -9,8 +9,6 @@ display_width = 600
 display_height = 600
 display_size = None
 
-GAME_FONT = None
-
 # Snake properties
 snake_size = 10
 snake_speed = 15
@@ -29,8 +27,8 @@ black = (0, 0, 0)
 white = (220, 220, 220)
 
 clock = None
-
 display = None
+GAME_FONT = None
 
 
 def init():
@@ -141,6 +139,7 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
     # Main game loop
     while not game_over:
         moved_this_frame = False
+
         # Register events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
