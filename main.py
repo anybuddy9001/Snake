@@ -141,13 +141,13 @@ def game_loop(starting_food_amount: int):
 
     # Main game loop
     while not game_over:
-        # Register key inputs
+        # Register events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 die(snake_length - 1)
                 game_over = True
                 game_stop = True
-
+            # Register key inputs
             if event.type == pygame.KEYDOWN:
                 # Change Movement
                 if event.key == pygame.K_LEFT or event.key == pygame.K_a:
@@ -171,12 +171,11 @@ def game_loop(starting_food_amount: int):
                     die(snake_length - 1)
                     game_over = True
                     game_stop = True
-
                 # Add food manually
                 # if event.key == pygame.K_a:
                 #     add_food(food_list)
 
-        # Skip loop if no input was made
+        # Skips loop if no input was made since the initialisation
         if x_direction == 0 and y_direction == 0:
             continue
 
