@@ -93,7 +93,7 @@ def die(points: int):
     global high_score
 
     print("Game Over")
-    print("You ate", points, "pieces of food")
+    print(f"You ate {points} pieces of food")
 
     if points > high_score:
         high_score = points
@@ -256,15 +256,21 @@ def main(argv: list):
     connected_edges = True
 
     # Messages
-    msg_help = '''\
+    msg_help = f'''\
     Options: 
         -h  --help                      Print this help
         -c  --controls                  Show the controls for the game
-        -e  --connect-edges             Toggle connected edges
-        -w  --width  --display_width    Set display width [default: {display_width}] 
-        -h  --height --display_height   Set display height [default: {display_height}]
-        -f  --starting-food             Sets the amount of food on startup
-        '''.format(display_width=display_width, display_height=display_height)
+        -e  --connect-edges             Toggle connected edges [default: {connected_edges}]
+        -w  --width  --display_width    Set display width  [Min: 300; default: {display_width}] 
+        -h  --height --display_height   Set display height [Min: 300; default: {display_height}]
+        -f  --starting-food             Sets the amount of food on startup [Min: 1; default: {starting_food_amount}]
+        '''
+
+    msg_minimum = f'''\
+    Minimum values for arguments:
+        Window size:    300x300 [default: {display_width}x{display_height}]
+        Apples:         1       [default: {starting_food_amount}]
+    '''
 
     msg_controls = '''\
     Controls:
@@ -280,7 +286,7 @@ def main(argv: list):
     try:
         opts, args = getopt.getopt(argv, 'cew:h:f:', [
             "help", "controls", "connect-edges",
-            "display-width=", "width=", "display-height=", "height=", "starting-food="
+            "width=", "height=", "starting-food="
         ])
     except getopt.GetoptError:
         print("Error: Unknown arguments")
@@ -295,14 +301,25 @@ def main(argv: list):
             exit(0)
         if opt in ('-e', "--connect-edges"):
             connected_edges = not connected_edges
-        if opt in ('-w', "--width", "--display-width"):
-            display_width = int(arg)
-            print("Set display width to " + str(display_width))
-        if opt in ('-h', "--height", "--display-height"):
-            display_height = int(arg)
-            print("Set display height to " + str(display_height))
-        if opt in ('-f', "--starting-food"):
-            starting_food_amount = int(arg)
+        try:
+            if opt in ('-w', "--width"):
+                display_width = int(arg)
+                if display_width < 300:
+                    raise ValueError
+                print(f"Set display width to {str(display_width)}")
+            if opt in ('-h', "--height"):
+                display_height = int(arg)
+                if display_width < 300:
+                    raise ValueError
+                print(f"Set display height to {str(display_height)}")
+            if opt in ('-f', "--starting-food"):
+                starting_food_amount = int(arg)
+                if display_width < 1:
+                    raise ValueError
+        except ValueError:
+            print("Error: Illegal values")
+            print(msg_minimum)
+            exit(2)
 
     display_size = (display_width, display_height)
 
