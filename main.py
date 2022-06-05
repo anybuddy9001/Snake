@@ -129,8 +129,7 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
     snake_head = (snake_x, snake_y)
     snake_list.append(snake_head)
 
-    x_direction = 0
-    y_direction = 0
+    move_direction = (0, 0)
 
     # add starting food
     if starting_food_amount > 0:
@@ -153,24 +152,20 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
                 # Change Movement
                 if not moved_this_frame:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                        if x_direction != snake_size:
-                            x_direction = -snake_size
-                            y_direction = 0
+                        if move_direction[0] != snake_size:
+                            move_direction = (-snake_size, 0)
                             moved_this_frame = True
                     elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                        if x_direction != -snake_size:
-                            x_direction = snake_size
-                            y_direction = 0
+                        if move_direction[0] != -snake_size:
+                            move_direction = (snake_size, 0)
                             moved_this_frame = True
                     elif event.key == pygame.K_UP or event.key == pygame.K_w:
-                        if y_direction != snake_size:
-                            x_direction = 0
-                            y_direction = -snake_size
+                        if move_direction[1] != snake_size:
+                            move_direction = (0, -snake_size)
                             moved_this_frame = True
                     elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
-                        if y_direction != -snake_size:
-                            x_direction = 0
-                            y_direction = snake_size
+                        if move_direction[1] != -snake_size:
+                            move_direction = (0, snake_size)
                             moved_this_frame = True
                 # Quit the game
                 if event.key == pygame.K_q:
@@ -182,12 +177,12 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
                 #     add_food(food_list)
 
         # Skips loop if no input was made since the initialisation
-        if x_direction == 0 and y_direction == 0:
+        if move_direction == (0, 0):
             continue
 
         # Move
-        snake_x += x_direction
-        snake_y += y_direction
+        snake_x += move_direction[0]
+        snake_y += move_direction[1]
 
         # Check for Wall
         if connected_edge:
