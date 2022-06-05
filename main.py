@@ -82,7 +82,7 @@ def paint(snake: list, food: list, points: int, draw_tooltip=False):
 
     # Draw Tooltip
     if draw_tooltip:
-        loc = (display_size[0] // 4, 80)
+        loc = (display_size[0] // 2 - 136, 80)
         GAME_FONT.render_to(display, (loc[0], loc[1]), "Press the arrow keys to play", white)
         GAME_FONT.render_to(display, (loc[0] + 50, loc[1] + 30), "Press 'Q' to Quit", white)
 
