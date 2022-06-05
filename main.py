@@ -141,6 +141,7 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
 
     # Main game loop
     while not game_over:
+        moved_this_frame = False
         # Register events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -150,22 +151,27 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
             # Register key inputs
             if event.type == pygame.KEYDOWN:
                 # Change Movement
-                if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                    if x_direction != snake_size:
-                        x_direction = -snake_size
-                        y_direction = 0
-                elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                    if x_direction != -snake_size:
-                        x_direction = snake_size
-                        y_direction = 0
-                elif event.key == pygame.K_UP or event.key == pygame.K_w:
-                    if y_direction != snake_size:
-                        x_direction = 0
-                        y_direction = -snake_size
-                elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
-                    if y_direction != -snake_size:
-                        x_direction = 0
-                        y_direction = snake_size
+                if not moved_this_frame:
+                    if event.key == pygame.K_LEFT or event.key == pygame.K_a:
+                        if x_direction != snake_size:
+                            x_direction = -snake_size
+                            y_direction = 0
+                            moved_this_frame = True
+                    elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
+                        if x_direction != -snake_size:
+                            x_direction = snake_size
+                            y_direction = 0
+                            moved_this_frame = True
+                    elif event.key == pygame.K_UP or event.key == pygame.K_w:
+                        if y_direction != snake_size:
+                            x_direction = 0
+                            y_direction = -snake_size
+                            moved_this_frame = True
+                    elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
+                        if y_direction != -snake_size:
+                            x_direction = 0
+                            y_direction = snake_size
+                            moved_this_frame = True
                 # Quit the game
                 if event.key == pygame.K_q:
                     die(snake_length - 1)
