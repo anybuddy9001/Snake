@@ -163,9 +163,8 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
     move_direction = (0, 0)
 
     # add starting food
-    if starting_food_amount > 0:
-        for i in range(starting_food_amount):
-            add_food()
+    for i in range(starting_food_amount):
+        add_food()
 
     paint(snake_list, food_list, points, True)
 
