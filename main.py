@@ -111,7 +111,7 @@ def add_food():
 
 
 # noinspection PyUnresolvedReferences
-def game_loop(starting_food_amount: int):
+def game_loop(starting_food_amount: int, connected_edge: bool):
     # Per Game setup
     game_stop = False
     game_over = False
@@ -183,8 +183,30 @@ def game_loop(starting_food_amount: int):
         snake_x += x_direction
         snake_y += y_direction
 
+        # Check for Wall
+        if connected_edge:
+            if snake_x > display_size[0] - 10:
+                snake_x = 0
+            elif snake_x < 0:
+                snake_x = display_size[0]
+            elif snake_y > display_size[1] - 10:
+                snake_y = 0
+            elif snake_y < 0:
+                snake_y = display_size[1]
+        else:
+            if snake_x > display_size[0] - 10 or snake_y > display_size[1] or snake_x < 0 or snake_y < 0:
+                die(points)
+                game_over = True
+
+        # create new snake head
         snake_head = (snake_x, snake_y)
         snake_list.append(snake_head)
+
+        # Tail biting
+        for snake_block in snake_list[:-1]:
+            if snake_block == snake_head:
+                die(points)
+                game_over = True
 
         # Remove stale snake parts
         if len(snake_list) > snake_length:
@@ -213,18 +235,7 @@ def game_loop(starting_food_amount: int):
 
             previous_snake_length = snake_length
 
-        # Check for Death
-        # Wall
-        if snake_x > display_size[0] - 10 or snake_y > display_size[1] or snake_x < 0 or snake_y < 0:
-            die(points)
-            game_over = True
-        # Tail biting
-        for x in snake_list[:-1]:
-            if x == snake_head:
-                die(points)
-                game_over = True
-
-        # Next Frame
+        # Draw Frame
         paint(snake_list, food_list, points)
 
         clock.tick(snake_speed + speed_modifier)
@@ -240,16 +251,21 @@ def main(argv: list):
     global display_height
     global display_size
 
+    # Default values
     starting_food_amount = 1
+    connected_edges = True
 
+    # Messages
     msg_help = '''\
     Options: 
         -h  --help                      Print this help
         -c  --controls                  Show the controls for the game
-        -dw --display_width --width     Set display width [default: {display_width}] 
-        -dh --display_height --height   Set display height [default: {display_height}]
+        -e  --connect-edges             Toggle connected edges
+        -w  --width  --display_width    Set display width [default: {display_width}] 
+        -h  --height --display_height   Set display height [default: {display_height}]
         -f  --starting-food             Sets the amount of food on startup
         '''.format(display_width=display_width, display_height=display_height)
+
     msg_controls = '''\
     Controls:
         'Up' or 'W' to move up
@@ -260,9 +276,11 @@ def main(argv: list):
         'Q' to quit the game
     '''
 
+    # Parse commandline arguments
     try:
-        opts, args = getopt.getopt(argv, 'cw:h:f:', [
-            "help", "controls", "display_width=", "width=", "display_height=", "height=", "starting-food="
+        opts, args = getopt.getopt(argv, 'cew:h:f:', [
+            "help", "controls", "connect-edges",
+            "display-width=", "width=", "display-height=", "height=", "starting-food="
         ])
     except getopt.GetoptError:
         print("Error: Unknown arguments")
@@ -275,10 +293,12 @@ def main(argv: list):
         if opt in ('-c', "--controls"):
             print(msg_controls)
             exit(0)
-        if opt in ('-w', "--width", "--display_width"):
+        if opt in ('-e', "--connect-edges"):
+            connected_edges = not connected_edges
+        if opt in ('-w', "--width", "--display-width"):
             display_width = int(arg)
             print("Set display width to " + str(display_width))
-        if opt in ('-h', "--height", "--display_height"):
+        if opt in ('-h', "--height", "--display-height"):
             display_height = int(arg)
             print("Set display height to " + str(display_height))
         if opt in ('-f', "--starting-food"):
@@ -290,7 +310,7 @@ def main(argv: list):
 
     while True:
         print("Starting new game!")
-        game_loop(starting_food_amount)
+        game_loop(starting_food_amount, connected_edges)
 
 
 if __name__ == '__main__':
