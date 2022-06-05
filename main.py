@@ -102,9 +102,42 @@ def die(points: int):
 # noinspection PyUnresolvedReferences
 def add_food():
     global food_list
+    food_x: int
+    food_y: int
 
-    food_x = random.randint(50, display_size[0] - 20)
-    food_y = random.randint(50, display_size[1] - 20)
+    tries = 0
+    timeout = 1500
+
+    while True:
+        stop = False
+        broken = False
+
+        food_x = random.randint(20, display_size[0] - 20)
+        food_y = random.randint(20, display_size[1] - 20)
+
+        for snake in snake_list:
+            if abs(food_x - snake[0]) >= 10 and abs(food_y - snake[1]) >= 10:
+                stop = True
+            else:
+                print("overlap")
+                stop = False
+                broken = True
+                break
+
+        if not broken:
+            for food in food_list:
+                if abs(food_x - food[0]) >= 12 and abs(food_y - food[1]) >= 12:
+                    stop = True
+                else:
+                    print("overlap")
+                    stop = False
+                    break
+        # stop = True
+        if stop or len(food_list) == 0 or tries == timeout:
+            print(f"{len(food_list)}, {tries}")
+            break
+        tries += 1
+
     food_list.append((food_x, food_y))
 
 
@@ -264,6 +297,8 @@ def main(argv: list):
         -w  --width  --display_width    Set display width  [Min: 300; default: {display_width}] 
         -h  --height --display_height   Set display height [Min: 300; default: {display_height}]
         -f  --starting-food             Sets the amount of food on startup [Min: 1; default: {starting_food_amount}]
+                                          BE AWARE: Large amounts of food can cause higher loading times and lag,
+                                                     as the game tries to minimize overlap!
         '''
 
     msg_minimum = f'''\
