@@ -7,15 +7,17 @@ import pygame.freetype
 # Window properties
 display_width = 600
 display_height = 600
-display_size = None
+display_size: tuple
 
 # Snake properties
 snake_size = 10
 snake_speed = 15
 
 # Lists
-snake_list = []
-food_list = []
+snake_list: list
+food_list: list
+
+seq: list
 
 high_score = -1
 
@@ -26,9 +28,9 @@ blue = (20, 20, 170)
 black = (0, 0, 0)
 white = (220, 220, 220)
 
-clock = None
-display = None
-GAME_FONT = None
+clock: pygame.time.Clock
+display: pygame.Surface
+GAME_FONT: pygame.freetype.Font
 
 
 def init():
@@ -56,7 +58,7 @@ def reset():
     snake_list = []
 
 
-# noinspection PyUnresolvedReferences,PyTypeChecker
+
 def paint(snake: list, food: list, points: int, draw_tooltip=False):
     # Draw background
     display.fill(blue)
@@ -99,7 +101,6 @@ def die(points: int):
         high_score = points
 
 
-# noinspection PyUnresolvedReferences
 def add_food():
     global food_list
     food_x: int
@@ -141,7 +142,7 @@ def add_food():
     food_list.append((food_x, food_y))
 
 
-# noinspection PyUnresolvedReferences
+
 def game_loop(starting_food_amount: int, connected_edge: bool):
     # Per Game setup
     game_stop = False
