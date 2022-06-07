@@ -1,6 +1,8 @@
 import sys
 import getopt
 import random
+from enum import Enum
+
 import pygame
 import pygame.freetype
 
@@ -9,12 +11,14 @@ import pygame.freetype
 BLOCK_SIZE = 10
 SPEED = 15
 
-# RGB-Colors
-RED = (170, 20, 20)
-GREEN = (20, 170, 20)
-BLUE = (20, 20, 170)
-BLACK = (0, 0, 0)
-WHITE = (220, 220, 220)
+
+# Enums
+class Color(Enum):
+    RED = (170, 20, 20)
+    GREEN = (20, 170, 20)
+    BLUE = (20, 20, 170)
+    BLACK = (0, 0, 0)
+    WHITE = (220, 220, 220)
 
 # Variables initialized at runtime
 # Window properties
@@ -66,32 +70,32 @@ def reset():
 
 def paint(snake: list, food: list, points: int, draw_tooltip=False):
     # Draw background
-    DISPLAY.fill(BLUE)
+    DISPLAY.fill(Color.BLUE.value)
 
     # Draw Snake
     for snake_block in snake:
-        pygame.draw.rect(DISPLAY, GREEN, [snake_block[0], snake_block[1], BLOCK_SIZE, BLOCK_SIZE])
+        pygame.draw.rect(DISPLAY, Color.GREEN.value, [snake_block[0], snake_block[1], BLOCK_SIZE, BLOCK_SIZE])
 
     # Draw Food
     for food_block in food:
-        pygame.draw.rect(DISPLAY, RED, [food_block[0], food_block[1], BLOCK_SIZE, BLOCK_SIZE])
+        pygame.draw.rect(DISPLAY, Color.RED.value, [food_block[0], food_block[1], BLOCK_SIZE, BLOCK_SIZE])
 
     # Draw Scores
     # Current Points
-    GAME_FONT.render_to(DISPLAY, (10, 10), "Score: " + str(points), WHITE)
+    GAME_FONT.render_to(DISPLAY, (10, 10), "Score: " + str(points), Color.WHITE.value)
 
     # Current high score
-    offset = 140 + 12 * (len(str(high_score)) - 1)
+    off = 140 + 12 * (len(str(high_score)) - 1)
     if high_score == -1:
-        GAME_FONT.render_to(DISPLAY, (DISPLAY_SIZE[0] - offset + 12, 10), "High Score: -", WHITE)
+        GAME_FONT.render_to(DISPLAY, (DISPLAY_SIZE[0] - off + 12, 10), "High Score: -", Color.WHITE.value)
     else:
-        GAME_FONT.render_to(DISPLAY, (DISPLAY_SIZE[0] - offset, 10), "High Score: " + str(high_score), WHITE)
+        GAME_FONT.render_to(DISPLAY, (DISPLAY_SIZE[0] - off, 10), "High Score: " + str(high_score), Color.WHITE.value)
 
     # Draw Tooltip
     if draw_tooltip:
         loc = (DISPLAY_SIZE[0] // 2 - 136, 80)
-        GAME_FONT.render_to(DISPLAY, (loc[0], loc[1]), "Press the arrow keys to play", WHITE)
-        GAME_FONT.render_to(DISPLAY, (loc[0] + 50, loc[1] + 30), "Press 'Q' to Quit", WHITE)
+        GAME_FONT.render_to(DISPLAY, (loc[0], loc[1]), "Press the arrow keys to play", Color.WHITE.value)
+        GAME_FONT.render_to(DISPLAY, (loc[0] + 50, loc[1] + 30), "Press 'Q' to Quit", Color.WHITE.value)
 
     pygame.display.update()
 
