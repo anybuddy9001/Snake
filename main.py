@@ -43,15 +43,16 @@ def init():
     global GAME_FONT
 
     pygame.init()
-    CLOCK = pygame.time.Clock()
-    DISPLAY = pygame.display.set_mode(DISPLAY_SIZE)
-    pygame.display.set_caption("Snake by anybuddy")
 
     try:
         GAME_FONT = pygame.freetype.Font("font.ttf", 24)
     except FileNotFoundError:
         print("Fatal Error: No Font file named 'font.ttf' found. Please put one next to this script!")
         exit(2)
+
+    CLOCK = pygame.time.Clock()
+    DISPLAY = pygame.display.set_mode(DISPLAY_SIZE)
+    pygame.display.set_caption("Snake by anybuddy")
 
 
 def reset():
