@@ -228,16 +228,16 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
                 die(points)
                 game_over = True
 
-        # Remove stale snake parts
-        if len(snake_list) > snake_length:
-            del snake_list[0]
-
         # Try to eat
         for food_element in food_list:
             if snake_head == food_element:
                 remove_food(food_element)
                 add_food()
                 snake_length += 1
+
+        # Remove stale snake parts
+        while len(snake_list) > snake_length:
+            del snake_list[0]
 
         # Scaling
         points = snake_length - 1
