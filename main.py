@@ -20,6 +20,13 @@ class Color(Enum):
     BLACK = (0, 0, 0)
     WHITE = (220, 220, 220)
 
+
+class FontType(Enum):
+    Serif = 24
+    SansSerif = 21
+    Monospace = 20
+
+
 # Variables initialized at runtime
 # Window properties
 DISPLAY_SIZE: tuple
@@ -27,6 +34,7 @@ DISPLAY_SIZE: tuple
 # pygame
 CLOCK: pygame.time.Clock
 DISPLAY: pygame.Surface
+FONT_TYPE: FontType
 GAME_FONT: pygame.freetype.Font
 
 # Lists
@@ -37,7 +45,7 @@ seq: list
 high_score = -1
 
 
-def init():
+def init(font_file):
     global CLOCK
     global DISPLAY
     global GAME_FONT
@@ -45,9 +53,12 @@ def init():
     pygame.init()
 
     try:
-        GAME_FONT = pygame.freetype.Font("font.ttf", 24)
+        GAME_FONT = pygame.freetype.Font(font_file, FONT_TYPE.value)
     except FileNotFoundError:
-        print("Fatal Error: No Font file named 'font.ttf' found. Please put one next to this script!")
+        print(f'''Fatal Error: '{font_file}' is non-existent or not a font file.
+                               Please put a valid font file named 'font.ttf next to this script or 
+                               use '--font-file' to point to valid one!
+        ''')
         exit(2)
 
     CLOCK = pygame.time.Clock()
@@ -82,11 +93,23 @@ def paint(snake: list, food: list, points: int, draw_tooltip=False):
         pygame.draw.rect(DISPLAY, Color.RED.value, [food_block[0], food_block[1], BLOCK_SIZE, BLOCK_SIZE])
 
     # Draw Scores
+    off = 140 + 12 * (len(str(high_score)) - 1)  # High score offset from the display edge
+    loc = (DISPLAY_SIZE[0] // 2 - 136, 80)  # Location of the first tooltip line
+    loc_off = 55  # Location offset of the second tooltip line
+
+    if FONT_TYPE is FontType.SansSerif:
+        off -= 7
+        loc = (loc[0] + 2, loc[1])
+        # loc_off needs no change
+    elif FONT_TYPE is FontType.Monospace:
+        off += 25
+        loc = (loc[0] - 30, loc[1])
+        loc_off += 12
+
     # Current Points
     GAME_FONT.render_to(DISPLAY, (10, 10), "Score: " + str(points), Color.WHITE.value)
 
     # Current high score
-    off = 140 + 12 * (len(str(high_score)) - 1)
     if high_score == -1:
         GAME_FONT.render_to(DISPLAY, (DISPLAY_SIZE[0] - off + 12, 10), "High Score: -", Color.WHITE.value)
     else:
@@ -94,9 +117,8 @@ def paint(snake: list, food: list, points: int, draw_tooltip=False):
 
     # Draw Tooltip
     if draw_tooltip:
-        loc = (DISPLAY_SIZE[0] // 2 - 136, 80)
         GAME_FONT.render_to(DISPLAY, (loc[0], loc[1]), "Press the arrow keys to play", Color.WHITE.value)
-        GAME_FONT.render_to(DISPLAY, (loc[0] + 50, loc[1] + 30), "Press 'Q' to Quit", Color.WHITE.value)
+        GAME_FONT.render_to(DISPLAY, (loc[0] + loc_off, loc[1] + 30), "Press 'Q' to Quit", Color.WHITE.value)
 
     pygame.display.update()
 
@@ -275,12 +297,15 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
 
 def main(argv: list):
     global DISPLAY_SIZE
+    global FONT_TYPE
 
     # Default values
     display_width = 600
     display_height = 600
     starting_food_amount = 1
     connected_edges = False
+    font_file = "LiberationSerif-Regular.ttf"
+    FONT_TYPE = FontType.Serif
 
     # Messages
     msg_help = f'''\
@@ -295,6 +320,15 @@ def main(argv: list):
         For aesthetic/consistency reasons is the display always 9x9 pixels smaller than a given value! 
         -w  --width  --display_width    Set display width  [Min: 300; default: {display_width}] 
         -h  --height --display_height   Set display height [Min: 300; default: {display_height}]
+        
+        --font-file                     Sets the font file to be used to draw text. Be aware that character spacing can
+                                        differ between fonts and therefore alignment issues may occur!
+                                        SansSerif and Monospace fonts are supported as well, but they must contain 
+                                        'Mono'/'Sans' in their file name to be recognized as such!
+                                        Tested fonts: 'LiberationSerif-Regular.ttf', 'LiberationSans-Regular.ttf' and 
+                                        'LiberationMono-Regular.ttf'. [Default: {font_file}]
+                                        Known issues: 
+                                            Monospace: Display width below 330 causes tooltip to glitch
         
         -f  --starting-food             Sets the amount of food on startup [Min: 1; default: {starting_food_amount}]
                                           BE AWARE: Large amounts of food can cause higher loading times and lag,
@@ -319,10 +353,11 @@ def main(argv: list):
 
     # Parse commandline arguments
     try:
-        opts, args = getopt.getopt(argv, 'cew:h:f:', [
-            "help", "controls", "connect-edges",
-            "width=", "height=", "starting-food="
-        ])
+        opts, args = getopt.getopt(argv, 'cew:h:f:',
+                                   [
+                                       "help", "controls", "connect-edges",
+                                       "width=", "height=", "font-file=", "starting-food="
+                                   ])
     except getopt.GetoptError:
         print("Fatal Error: Unknown arguments")
         print(msg_help)
@@ -365,10 +400,22 @@ def main(argv: list):
             print("Fatal Error: Illegal argument values")
             print(msg_minimum)
             exit(2)
+        if opt == "--font-file":
+            font_file = arg
+            if not font_file[-4:] == '.ttf':
+                print(f"Fatal Error: {font_file} is not a font file! Required Suffix: '.ttf'")
+                exit(2)
+            if not font_file.rfind("Sans") == -1:
+                FONT_TYPE = FontType.SansSerif
+            if not font_file.rfind("Mono") == -1:
+                FONT_TYPE = FontType.Monospace
+                if display_width < 330:
+                    print("Critical: Display width below 330 causes tooltip to glitch")
+            print(f"Info: Set font to '{font_file}' of type {FONT_TYPE.name}")
 
     DISPLAY_SIZE = (-9 + display_width, - 9 + display_height)
 
-    init()
+    init(font_file)
 
     while True:
         print("Info: Starting new game!")
