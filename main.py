@@ -16,31 +16,31 @@ BLUE = (20, 20, 170)
 BLACK = (0, 0, 0)
 WHITE = (220, 220, 220)
 
-# Variables at runtime initialized
+# Variables initialized at runtime
 # Window properties
-display_size: tuple
+DISPLAY_SIZE: tuple
+
+# pygame
+CLOCK: pygame.time.Clock
+DISPLAY: pygame.Surface
+GAME_FONT: pygame.freetype.Font
 
 # Lists
 snake_list: list
 food_list: list
 seq: list
 
-# pygame
-clock: pygame.time.Clock
-display: pygame.Surface
-GAME_FONT: pygame.freetype.Font
-
 high_score = -1
 
 
 def init():
-    global clock
-    global display
+    global CLOCK
+    global DISPLAY
     global GAME_FONT
 
     pygame.init()
-    clock = pygame.time.Clock()
-    display = pygame.display.set_mode(display_size)
+    CLOCK = pygame.time.Clock()
+    DISPLAY = pygame.display.set_mode(DISPLAY_SIZE)
     pygame.display.set_caption("Snake by anybuddy")
 
     try:
@@ -59,39 +59,39 @@ def reset():
     snake_list = []
     seq = []
 
-    for x in range(10, display_size[0] - 20, 10):
-        for y in range(10, display_size[1] - 20, 10):
+    for x in range(10, DISPLAY_SIZE[0] - 20, 10):
+        for y in range(10, DISPLAY_SIZE[1] - 20, 10):
             seq.append((x, y))
 
 
 def paint(snake: list, food: list, points: int, draw_tooltip=False):
     # Draw background
-    display.fill(BLUE)
+    DISPLAY.fill(BLUE)
 
     # Draw Snake
     for snake_block in snake:
-        pygame.draw.rect(display, GREEN, [snake_block[0], snake_block[1], BLOCK_SIZE, BLOCK_SIZE])
+        pygame.draw.rect(DISPLAY, GREEN, [snake_block[0], snake_block[1], BLOCK_SIZE, BLOCK_SIZE])
 
     # Draw Food
     for food_block in food:
-        pygame.draw.rect(display, RED, [food_block[0], food_block[1], BLOCK_SIZE, BLOCK_SIZE])
+        pygame.draw.rect(DISPLAY, RED, [food_block[0], food_block[1], BLOCK_SIZE, BLOCK_SIZE])
 
     # Draw Scores
     # Current Points
-    GAME_FONT.render_to(display, (10, 10), "Score: " + str(points), WHITE)
+    GAME_FONT.render_to(DISPLAY, (10, 10), "Score: " + str(points), WHITE)
 
     # Current high score
     offset = 140 + 12 * (len(str(high_score)) - 1)
     if high_score == -1:
-        GAME_FONT.render_to(display, (display_size[0] - offset + 12, 10), "High Score: -", WHITE)
+        GAME_FONT.render_to(DISPLAY, (DISPLAY_SIZE[0] - offset + 12, 10), "High Score: -", WHITE)
     else:
-        GAME_FONT.render_to(display, (display_size[0] - offset, 10), "High Score: " + str(high_score), WHITE)
+        GAME_FONT.render_to(DISPLAY, (DISPLAY_SIZE[0] - offset, 10), "High Score: " + str(high_score), WHITE)
 
     # Draw Tooltip
     if draw_tooltip:
-        loc = (display_size[0] // 2 - 136, 80)
-        GAME_FONT.render_to(display, (loc[0], loc[1]), "Press the arrow keys to play", WHITE)
-        GAME_FONT.render_to(display, (loc[0] + 50, loc[1] + 30), "Press 'Q' to Quit", WHITE)
+        loc = (DISPLAY_SIZE[0] // 2 - 136, 80)
+        GAME_FONT.render_to(DISPLAY, (loc[0], loc[1]), "Press the arrow keys to play", WHITE)
+        GAME_FONT.render_to(DISPLAY, (loc[0] + 50, loc[1] + 30), "Press 'Q' to Quit", WHITE)
 
     pygame.display.update()
 
@@ -142,8 +142,8 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
     points = 0
 
     # Spawn location of snake
-    x = display_size[0] // 2
-    y = display_size[1] // 2
+    x = DISPLAY_SIZE[0] // 2
+    y = DISPLAY_SIZE[1] // 2
     snake_x = x - (x % 10)
     snake_y = y - (y % 10)
 
@@ -207,16 +207,16 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
 
         # Check for Wall
         if connected_edge:
-            if snake_x >= display_size[0] - 1:
+            if snake_x >= DISPLAY_SIZE[0] - 1:
                 snake_x = 0
             elif snake_x < 0:
-                snake_x = display_size[0] - 11
-            elif snake_y >= display_size[1] - 1:
+                snake_x = DISPLAY_SIZE[0] - 11
+            elif snake_y >= DISPLAY_SIZE[1] - 1:
                 snake_y = 0
             elif snake_y < 0:
-                snake_y = display_size[1] - 11
+                snake_y = DISPLAY_SIZE[1] - 11
         else:
-            if snake_x > display_size[0] - 10 or snake_y > display_size[1] or snake_x < 0 or snake_y < 0:
+            if snake_x > DISPLAY_SIZE[0] - 10 or snake_y > DISPLAY_SIZE[1] or snake_x < 0 or snake_y < 0:
                 die(points)
                 game_over = True
 
@@ -260,7 +260,7 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
         # Draw Frame
         paint(snake_list, food_list, points)
 
-        clock.tick(SPEED + speed_modifier)
+        CLOCK.tick(SPEED + speed_modifier)
 
     if game_stop:
         print("Info: Exiting game")
@@ -269,7 +269,7 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
 
 
 def main(argv: list):
-    global display_size
+    global DISPLAY_SIZE
 
     # Default values
     display_width = 600
@@ -361,7 +361,7 @@ def main(argv: list):
             print(msg_minimum)
             exit(2)
 
-    display_size = (-9 + display_width, - 9 + display_height)
+    DISPLAY_SIZE = (-9 + display_width, - 9 + display_height)
 
     init()
 
