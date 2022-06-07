@@ -53,10 +53,15 @@ def init():
 def reset():
     global snake_list
     global food_list
+    global seq
 
     food_list = []
     snake_list = []
+    seq = []
 
+    for x in range(10, display_size[0] - 20, 10):
+        for y in range(10, display_size[1] - 20, 10):
+            seq.append((x, y))
 
 
 def paint(snake: list, food: list, points: int, draw_tooltip=False):
@@ -102,45 +107,25 @@ def die(points: int):
 
 
 def add_food():
-    global food_list
-    food_x: int
-    food_y: int
+    local_seq = seq
 
-    tries = 0
-    timeout = 1500
+    for snake_element in snake_list:
+        try:
+            local_seq.remove(snake_element)
+        except ValueError:
+            pass
 
-    while True:
-        stop = False
-        broken = False
+    try:
+        food = random.choice(local_seq)
+        seq.remove(food)
+        food_list.append(food)
+    except IndexError:
+        pass
 
-        food_x = random.randint(20, display_size[0] - 20)
-        food_y = random.randint(20, display_size[1] - 20)
 
-        for snake in snake_list:
-            if abs(food_x - snake[0]) >= 10 and abs(food_y - snake[1]) >= 10:
-                stop = True
-            else:
-                print("overlap")
-                stop = False
-                broken = True
-                break
-
-        if not broken:
-            for food in food_list:
-                if abs(food_x - food[0]) >= 12 and abs(food_y - food[1]) >= 12:
-                    stop = True
-                else:
-                    print("overlap")
-                    stop = False
-                    break
-        # stop = True
-        if stop or len(food_list) == 0 or tries == timeout:
-            print(f"{len(food_list)}, {tries}")
-            break
-        tries += 1
-
-    food_list.append((food_x, food_y))
-
+def remove_food(food_element):
+    food_list.remove(food_element)
+    seq.append(food_element)
 
 
 def game_loop(starting_food_amount: int, connected_edge: bool):
@@ -156,8 +141,11 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
 
     points = 0
 
-    snake_x = display_size[0] // 2
-    snake_y = display_size[1] // 2
+    # Spawn location of snake
+    x = display_size[0] // 2
+    y = display_size[1] // 2
+    snake_x = x - (x % 10)
+    snake_y = y - (y % 10)
 
     snake_head = (snake_x, snake_y)
     snake_list.append(snake_head)
@@ -219,14 +207,14 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
 
         # Check for Wall
         if connected_edge:
-            if snake_x > display_size[0] - 10:
+            if snake_x >= display_size[0] - 1:
                 snake_x = 0
             elif snake_x < 0:
-                snake_x = display_size[0]
-            elif snake_y > display_size[1] - 10:
+                snake_x = display_size[0] - 11
+            elif snake_y >= display_size[1] - 1:
                 snake_y = 0
             elif snake_y < 0:
-                snake_y = display_size[1]
+                snake_y = display_size[1] - 11
         else:
             if snake_x > display_size[0] - 10 or snake_y > display_size[1] or snake_x < 0 or snake_y < 0:
                 die(points)
@@ -248,8 +236,8 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
 
         # Try to eat
         for food_element in food_list:
-            if abs(food_element[0] - snake_head[0]) <= 10 and abs(food_element[1] - snake_head[1]) <= 10:
-                food_list.remove(food_element)
+            if snake_head == food_element:
+                remove_food(food_element)
                 add_food()
                 snake_length += 1
 
@@ -340,11 +328,19 @@ def main(argv: list):
         try:
             if opt in ('-w', "--width"):
                 display_width = int(arg)
+                deviation = display_width % 10
+                if not deviation == 0:
+                    print(f"Error: {display_width} is not dividable by 10")
+                    display_width -= deviation
                 if display_width < 300:
                     raise ValueError
                 print(f"Set display width to {str(display_width)}")
             if opt in ('-h', "--height"):
                 display_height = int(arg)
+                deviation = display_height % 10
+                if not deviation == 0:
+                    print(f"Error: {display_height} is not dividable by 10")
+                    display_height -= deviation
                 if display_width < 300:
                     raise ValueError
                 print(f"Set display height to {str(display_height)}")
@@ -357,7 +353,7 @@ def main(argv: list):
             print(msg_minimum)
             exit(2)
 
-    display_size = (display_width, display_height)
+    display_size = (-9 + display_width, - 9 + display_height)
 
     init()
 
