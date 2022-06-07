@@ -4,31 +4,33 @@ import random
 import pygame
 import pygame.freetype
 
+# Static variables
+# Properties
+BLOCK_SIZE = 10
+SPEED = 15
+
+# RGB-Colors
+RED = (170, 20, 20)
+GREEN = (20, 170, 20)
+BLUE = (20, 20, 170)
+BLACK = (0, 0, 0)
+WHITE = (220, 220, 220)
+
+# Variables at runtime initialized
 # Window properties
 display_size: tuple
-
-# Snake properties
-snake_size = 10
-snake_speed = 15
 
 # Lists
 snake_list: list
 food_list: list
-
 seq: list
 
-high_score = -1
-
-# RGB-Colors
-red = (170, 20, 20)
-green = (20, 170, 20)
-blue = (20, 20, 170)
-black = (0, 0, 0)
-white = (220, 220, 220)
-
+# pygame
 clock: pygame.time.Clock
 display: pygame.Surface
 GAME_FONT: pygame.freetype.Font
+
+high_score = -1
 
 
 def init():
@@ -64,32 +66,32 @@ def reset():
 
 def paint(snake: list, food: list, points: int, draw_tooltip=False):
     # Draw background
-    display.fill(blue)
+    display.fill(BLUE)
 
     # Draw Snake
     for snake_block in snake:
-        pygame.draw.rect(display, green, [snake_block[0], snake_block[1], snake_size, snake_size])
+        pygame.draw.rect(display, GREEN, [snake_block[0], snake_block[1], BLOCK_SIZE, BLOCK_SIZE])
 
     # Draw Food
     for food_block in food:
-        pygame.draw.rect(display, red, [food_block[0], food_block[1], snake_size, snake_size])
+        pygame.draw.rect(display, RED, [food_block[0], food_block[1], BLOCK_SIZE, BLOCK_SIZE])
 
     # Draw Scores
     # Current Points
-    GAME_FONT.render_to(display, (10, 10), "Score: " + str(points), white)
+    GAME_FONT.render_to(display, (10, 10), "Score: " + str(points), WHITE)
 
     # Current high score
     offset = 140 + 12 * (len(str(high_score)) - 1)
     if high_score == -1:
-        GAME_FONT.render_to(display, (display_size[0] - offset + 12, 10), "High Score: -", white)
+        GAME_FONT.render_to(display, (display_size[0] - offset + 12, 10), "High Score: -", WHITE)
     else:
-        GAME_FONT.render_to(display, (display_size[0] - offset, 10), "High Score: " + str(high_score), white)
+        GAME_FONT.render_to(display, (display_size[0] - offset, 10), "High Score: " + str(high_score), WHITE)
 
     # Draw Tooltip
     if draw_tooltip:
         loc = (display_size[0] // 2 - 136, 80)
-        GAME_FONT.render_to(display, (loc[0], loc[1]), "Press the arrow keys to play", white)
-        GAME_FONT.render_to(display, (loc[0] + 50, loc[1] + 30), "Press 'Q' to Quit", white)
+        GAME_FONT.render_to(display, (loc[0], loc[1]), "Press the arrow keys to play", WHITE)
+        GAME_FONT.render_to(display, (loc[0] + 50, loc[1] + 30), "Press 'Q' to Quit", WHITE)
 
     pygame.display.update()
 
@@ -171,20 +173,20 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
                 # Change Movement
                 if not moved_this_frame:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                        if move_direction[0] != snake_size:
-                            move_direction = (-snake_size, 0)
+                        if move_direction[0] != BLOCK_SIZE:
+                            move_direction = (-BLOCK_SIZE, 0)
                             moved_this_frame = True
                     elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                        if move_direction[0] != -snake_size:
-                            move_direction = (snake_size, 0)
+                        if move_direction[0] != -BLOCK_SIZE:
+                            move_direction = (BLOCK_SIZE, 0)
                             moved_this_frame = True
                     elif event.key == pygame.K_UP or event.key == pygame.K_w:
-                        if move_direction[1] != snake_size:
-                            move_direction = (0, -snake_size)
+                        if move_direction[1] != BLOCK_SIZE:
+                            move_direction = (0, -BLOCK_SIZE)
                             moved_this_frame = True
                     elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
-                        if move_direction[1] != -snake_size:
-                            move_direction = (0, snake_size)
+                        if move_direction[1] != -BLOCK_SIZE:
+                            move_direction = (0, BLOCK_SIZE)
                             moved_this_frame = True
                 # Quit the game
                 if event.key == pygame.K_q:
@@ -258,7 +260,7 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
         # Draw Frame
         paint(snake_list, food_list, points)
 
-        clock.tick(snake_speed + speed_modifier)
+        clock.tick(SPEED + speed_modifier)
 
     if game_stop:
         print("Info: Exiting game")
