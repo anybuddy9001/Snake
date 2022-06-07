@@ -44,7 +44,7 @@ def init():
     try:
         GAME_FONT = pygame.freetype.Font("font.ttf", 24)
     except FileNotFoundError:
-        print("No Font file named 'font.ttf' found. Please put one next to this script!")
+        print("Fatal Error: No Font file named 'font.ttf' found. Please put one next to this script!")
         exit(2)
 
 
@@ -97,8 +97,8 @@ def paint(snake: list, food: list, points: int, draw_tooltip=False):
 def die(points: int):
     global high_score
 
-    print("Game Over")
-    print(f"You ate {points} pieces of food")
+    print("Info: Game Over")
+    print(f"Info: You ate {points} pieces of food")
 
     if points > high_score:
         high_score = points
@@ -261,7 +261,7 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
         clock.tick(snake_speed + speed_modifier)
 
     if game_stop:
-        print("Exiting game")
+        print("Info: Exiting game")
         pygame.quit()
         exit(0)
 
@@ -273,16 +273,22 @@ def main(argv: list):
     display_width = 600
     display_height = 600
     starting_food_amount = 1
-    connected_edges = True
+    connected_edges = False
 
     # Messages
     msg_help = f'''\
     Options: 
         -h  --help                      Print this help
         -c  --controls                  Show the controls for the game
-        -e  --connect-edges             Toggle connected edges [default: {connected_edges}]
+        
+        -e  --connect-edges             Turn connected edges on. 
+                                        (If the snake leaves on the right side it will come out on the left)
+        
+        Display sizes must be dividable by 10. On deviation the next smaller by 10 dividable number will be used!
+        For aesthetic/consistency reasons is the display always 9x9 pixels smaller than a given value! 
         -w  --width  --display_width    Set display width  [Min: 300; default: {display_width}] 
         -h  --height --display_height   Set display height [Min: 300; default: {display_height}]
+        
         -f  --starting-food             Sets the amount of food on startup [Min: 1; default: {starting_food_amount}]
                                           BE AWARE: Large amounts of food can cause higher loading times and lag,
                                                      as the game tries to minimize overlap!
@@ -311,7 +317,7 @@ def main(argv: list):
             "width=", "height=", "starting-food="
         ])
     except getopt.GetoptError:
-        print("Error: Unknown arguments")
+        print("Fatal Error: Unknown arguments")
         print(msg_help)
         sys.exit(2)
     for opt, arg in opts:
@@ -322,7 +328,8 @@ def main(argv: list):
             print(msg_controls)
             exit(0)
         if opt in ('-e', "--connect-edges"):
-            connected_edges = not connected_edges
+            connected_edges = True
+            print("Info: Edges are connected")
         try:
             if opt in ('-w', "--width"):
                 display_width = int(arg)
@@ -332,7 +339,7 @@ def main(argv: list):
                     display_width -= deviation
                 if display_width < 300:
                     raise ValueError
-                print(f"Set display width to {str(display_width)}")
+                print(f"Info: Set display width to {str(display_width)}")
             if opt in ('-h', "--height"):
                 display_height = int(arg)
                 deviation = display_height % 10
@@ -341,13 +348,14 @@ def main(argv: list):
                     display_height -= deviation
                 if display_width < 300:
                     raise ValueError
-                print(f"Set display height to {str(display_height)}")
+                print(f"Info: Set display height to {str(display_height)}")
             if opt in ('-f', "--starting-food"):
                 starting_food_amount = int(arg)
                 if display_width < 1:
                     raise ValueError
+                print(f"Info: Set starting apples amount to {starting_food_amount}")
         except ValueError:
-            print("Error: Illegal values")
+            print("Fatal Error: Illegal argument values")
             print(msg_minimum)
             exit(2)
 
@@ -356,7 +364,7 @@ def main(argv: list):
     init()
 
     while True:
-        print("Starting new game!")
+        print("Info: Starting new game!")
         game_loop(starting_food_amount, connected_edges)
 
 
