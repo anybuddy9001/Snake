@@ -377,25 +377,25 @@ def main(argv: list):
                 display_width = int(arg)
                 deviation = display_width % 10
                 if not deviation == 0:
-                    print(f"Error: {display_width} is not dividable by 10")
+                    print(f"Error: '{display_width}' is not dividable by 10")
                     display_width -= deviation
                 if display_width < 300:
                     raise ValueError
-                print(f"Info: Set display width to {str(display_width)}")
+                print(f"Info: Set display width to '{str(display_width)}'")
             if opt in ('-h', "--height"):
                 display_height = int(arg)
                 deviation = display_height % 10
                 if not deviation == 0:
-                    print(f"Error: {display_height} is not dividable by 10")
+                    print(f"Error: '{display_height}' is not dividable by 10")
                     display_height -= deviation
                 if display_width < 300:
                     raise ValueError
-                print(f"Info: Set display height to {str(display_height)}")
+                print(f"Info: Set display height to '{str(display_height)}'")
             if opt in ('-f', "--starting-food"):
                 starting_food_amount = int(arg)
                 if display_width < 1:
                     raise ValueError
-                print(f"Info: Set starting apples amount to {starting_food_amount}")
+                print(f"Info: Set starting apples amount to '{starting_food_amount}'")
         except ValueError:
             print("Fatal Error: Illegal argument values")
             print(msg_minimum)
