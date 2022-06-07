@@ -331,8 +331,6 @@ def main(argv: list):
                                             Monospace: Display width below 330 causes tooltip to glitch
         
         -f  --starting-food             Sets the amount of food on startup [Min: 1; default: {starting_food_amount}]
-                                          BE AWARE: Large amounts of food can cause higher loading times and lag,
-                                                     as the game tries to minimize overlap!
         '''
 
     msg_minimum = f'''\
@@ -344,9 +342,9 @@ def main(argv: list):
     msg_controls = '''\
     Controls:
         'Up' or 'W' to move up
-        'Down' or 'S' tp move down
-        'Left' or 'A' tp move left
-        'Right' or 'D' tp move right
+        'Down' or 'S' to move down
+        'Left' or 'A' to move left
+        'Right' or 'D' to move right
         
         'Q' to quit the game
     '''
