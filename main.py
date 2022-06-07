@@ -5,8 +5,6 @@ import pygame
 import pygame.freetype
 
 # Window properties
-display_width = 600
-display_height = 600
 display_size: tuple
 
 # Snake properties
@@ -269,11 +267,11 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
 
 
 def main(argv: list):
-    global display_width
-    global display_height
     global display_size
 
     # Default values
+    display_width = 600
+    display_height = 600
     starting_food_amount = 1
     connected_edges = True
 
