@@ -2,6 +2,7 @@ import sys
 import getopt
 import random
 from enum import Enum
+import json
 
 import pygame
 import pygame.freetype
@@ -30,6 +31,9 @@ class FontType(Enum):
 # Variables initialized at runtime
 # Window properties
 DISPLAY_SIZE: tuple
+STARTING_FOOD_AMOUNT: int
+CONNECTED_EDGES: bool
+SESSION_INDEX: int
 
 # pygame
 CLOCK: pygame.time.Clock
@@ -42,7 +46,7 @@ snake_list: list
 food_list: list
 seq: list
 
-high_score = -1
+high_score: int
 
 
 def init(font_file):
@@ -80,16 +84,75 @@ def reset():
             seq.append((x, y))
 
 
-def paint(snake: list, food: list, points: int, draw_tooltip=False):
+def get_element_index(data) -> int:
+    for element in data:
+        if element["display_size"] == str((DISPLAY_SIZE[0] + 9, DISPLAY_SIZE[1] + 9)):
+            if element["connected_edges"] == int(CONNECTED_EDGES):
+                if element["starting_food_amount"] == STARTING_FOOD_AMOUNT:
+                    return data.index(element)
+    return -1
+
+
+def get_high_score():
+    global high_score
+    global SESSION_INDEX
+
+    new_entry = ('{'
+                 f'"display_size" : "{(DISPLAY_SIZE[0] + 9, DISPLAY_SIZE[1] + 9)}", '
+                 f'"connected_edges" : {int(CONNECTED_EDGES)}, '
+                 f'"starting_food_amount" : {STARTING_FOOD_AMOUNT}, '
+                 '"high_score" : -1'
+                 '}')
+
+    try:
+        with open("Scores.json") as fin:
+            data = json.load(fin)
+
+        try:
+            if SESSION_INDEX == -1:
+                raise NameError
+        except NameError:
+            SESSION_INDEX = get_element_index(data)
+
+        if SESSION_INDEX == -1:
+            data.append(json.loads(new_entry))
+            with open("Scores.json", 'w') as fout:
+                json.dump(data, fout, indent=4, ensure_ascii=False)
+            high_score = -1
+        else:
+            high_score = data[SESSION_INDEX]["high_score"]
+
+    except FileNotFoundError:
+        # Create a new file from scratch
+        with open("Scores.json", 'w') as fout:
+            starting_entry = '[' + new_entry + ']'
+            data = json.loads(starting_entry)
+            json.dump(data, fout, indent=4, ensure_ascii=False)
+            high_score = -1
+
+
+def set_high_score(new_score: int):
+    if high_score < new_score:
+        with open("Scores.json", 'r') as fin:
+            data = json.load(fin)
+
+        data[SESSION_INDEX]["high_score"] = new_score
+
+        with open("Scores.json", 'w') as fout:
+            json.dump(data, fout, indent=4, ensure_ascii=False)
+            print("+1")
+
+
+def paint(points: int, draw_tooltip=False):
     # Draw background
     DISPLAY.fill(Color.BLUE.value)
 
     # Draw Snake
-    for snake_block in snake:
+    for snake_block in snake_list:
         pygame.draw.rect(DISPLAY, Color.GREEN.value, [snake_block[0], snake_block[1], BLOCK_SIZE, BLOCK_SIZE])
 
     # Draw Food
-    for food_block in food:
+    for food_block in food_list:
         pygame.draw.rect(DISPLAY, Color.RED.value, [food_block[0], food_block[1], BLOCK_SIZE, BLOCK_SIZE])
 
     # Draw Scores
@@ -124,13 +187,10 @@ def paint(snake: list, food: list, points: int, draw_tooltip=False):
 
 
 def die(points: int):
-    global high_score
-
     print("Info: Game Over")
     print(f"Info: You ate {points} pieces of food")
 
-    if points > high_score:
-        high_score = points
+    set_high_score(points)
 
 
 def add_food():
@@ -155,7 +215,7 @@ def remove_food(food_element):
     seq.append(food_element)
 
 
-def game_loop(starting_food_amount: int, connected_edge: bool):
+def game_loop():
     # Per Game setup
     reset()
 
@@ -180,10 +240,12 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
     move_direction = (0, 0)
 
     # add starting food
-    for i in range(starting_food_amount):
+    for i in range(STARTING_FOOD_AMOUNT):
         add_food()
 
-    paint(snake_list, food_list, points, True)
+    get_high_score()
+
+    paint(points, True)
 
     # Main game loop
     while not game_over:
@@ -192,7 +254,7 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
         # Register events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                die(snake_length - 1)
+                die(points)
                 game_over = True
                 game_stop = True
             # Register key inputs
@@ -217,7 +279,7 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
                             moved_this_frame = True
                 # Quit the game
                 if event.key == pygame.K_q:
-                    die(snake_length - 1)
+                    die(points)
                     game_over = True
                     game_stop = True
                 # Add food manually
@@ -233,7 +295,7 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
         snake_y += move_direction[1]
 
         # Check for Wall
-        if connected_edge:
+        if CONNECTED_EDGES:
             if snake_x >= DISPLAY_SIZE[0] - 1:
                 snake_x = 0
             elif snake_x < 0:
@@ -285,7 +347,7 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
             previous_snake_length = snake_length
 
         # Draw Frame
-        paint(snake_list, food_list, points)
+        paint(points)
 
         CLOCK.tick(SPEED + speed_modifier)
 
@@ -297,18 +359,25 @@ def game_loop(starting_food_amount: int, connected_edge: bool):
 
 def main(argv: list):
     global DISPLAY_SIZE
+    global CONNECTED_EDGES
+    global STARTING_FOOD_AMOUNT
     global FONT_TYPE
 
     # Default values
     display_width = 600
     display_height = 600
-    starting_food_amount = 1
-    connected_edges = False
+    CONNECTED_EDGES = False
+    STARTING_FOOD_AMOUNT = 1
+
     font_file = "LiberationSerif-Regular.ttf"
     FONT_TYPE = FontType.Serif
 
     # Messages
     msg_help = f'''\
+    Usage: python main.py [Options]
+    
+    High scores are stored in Scores.json
+    
     Options: 
         -h  --help                      Print this help
         -c  --controls                  Show the controls for the game
@@ -330,13 +399,13 @@ def main(argv: list):
                                         Known issues: 
                                             Monospace: Display width below 330 causes tooltip to glitch
         
-        -f  --starting-food             Sets the amount of food on startup [Min: 1; default: {starting_food_amount}]
+        -f  --starting-food             Sets the amount of food on startup [Min: 1; default: {STARTING_FOOD_AMOUNT}]
         '''
 
     msg_minimum = f'''\
     Minimum values for arguments:
         Window size:    300x300 [default: {display_width}x{display_height}]
-        Apples:         1       [default: {starting_food_amount}]
+        Apples:         1       [default: {STARTING_FOOD_AMOUNT}]
     '''
 
     msg_controls = '''\
@@ -368,7 +437,7 @@ def main(argv: list):
             print(msg_controls)
             exit(0)
         if opt in ('-e', "--connect-edges"):
-            connected_edges = True
+            CONNECTED_EDGES = True
             print("Info: Edges are connected")
         try:
             if opt in ('-w', "--width"):
@@ -390,10 +459,10 @@ def main(argv: list):
                     raise ValueError
                 print(f"Info: Set display height to '{str(display_height)}'")
             if opt in ('-f', "--starting-food"):
-                starting_food_amount = int(arg)
+                STARTING_FOOD_AMOUNT = int(arg)
                 if display_width < 1:
                     raise ValueError
-                print(f"Info: Set starting apples amount to '{starting_food_amount}'")
+                print(f"Info: Set starting apples amount to '{STARTING_FOOD_AMOUNT}'")
         except ValueError:
             print("Fatal Error: Illegal argument values")
             print(msg_minimum)
@@ -417,7 +486,7 @@ def main(argv: list):
 
     while True:
         print("Info: Starting new game!")
-        game_loop(starting_food_amount, connected_edges)
+        game_loop()
 
 
 if __name__ == '__main__':
