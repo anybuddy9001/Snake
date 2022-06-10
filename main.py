@@ -33,7 +33,7 @@ class FontType(Enum):
 DISPLAY_SIZE: tuple
 STARTING_FOOD_AMOUNT: int
 CONNECTED_EDGES: bool
-SESSION_INDEX: int
+SESSION_ID: int
 
 # pygame
 CLOCK: pygame.time.Clock
@@ -95,7 +95,7 @@ def get_element_index(data) -> int:
 
 def get_high_score():
     global high_score
-    global SESSION_INDEX
+    global SESSION_ID
 
     new_entry = ('{'
                  f'"display_size" : "{(DISPLAY_SIZE[0] + 9, DISPLAY_SIZE[1] + 9)}", '
@@ -109,18 +109,18 @@ def get_high_score():
             data = json.load(fin)
 
         try:
-            if SESSION_INDEX == -1:
+            if SESSION_ID == -1:
                 raise NameError
         except NameError:
-            SESSION_INDEX = get_element_index(data)
+            SESSION_ID = get_element_index(data)
 
-        if SESSION_INDEX == -1:
+        if SESSION_ID == -1:
             data.append(json.loads(new_entry))
             with open("Scores.json", 'w') as fout:
                 json.dump(data, fout, indent=4, ensure_ascii=False)
             high_score = -1
         else:
-            high_score = data[SESSION_INDEX]["high_score"]
+            high_score = data[SESSION_ID]["high_score"]
 
     except FileNotFoundError:
         # Create a new file from scratch
@@ -129,7 +129,7 @@ def get_high_score():
             data = json.loads(starting_entry)
             json.dump(data, fout, indent=4, ensure_ascii=False)
         high_score = -1
-        SESSION_INDEX = 0
+        SESSION_ID = 0
 
 
 def set_high_score(new_score: int):
@@ -137,7 +137,7 @@ def set_high_score(new_score: int):
         with open("Scores.json", 'r') as fin:
             data = json.load(fin)
 
-        data[SESSION_INDEX]["high_score"] = new_score
+        data[SESSION_ID]["high_score"] = new_score
 
         with open("Scores.json", 'w') as fout:
             json.dump(data, fout, indent=4, ensure_ascii=False)
