@@ -128,7 +128,8 @@ def get_high_score():
             starting_entry = '[' + new_entry + ']'
             data = json.loads(starting_entry)
             json.dump(data, fout, indent=4, ensure_ascii=False)
-            high_score = -1
+        high_score = -1
+        SESSION_INDEX = 0
 
 
 def set_high_score(new_score: int):
