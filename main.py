@@ -383,14 +383,12 @@ def main(argv: list):
     # Messages
     msg_help = f'''\
     Usage: python main.py [Options]
-    
-    High scores are stored in Scores.json
-    
+
     Options: 
         -h  --help                      Print this help
         -c  --controls                  Show the controls for the game
                                                 
-        --score-file                    Sets the score file to be the specified file.
+        --score-file                    Sets the score file to be the specified file. [default: {SCORE_FILE}]
                                         The file has to be a json file, but the '.json' can be omitted.
                                         If the given file doesn't exist it will be created.
                                         Example:
