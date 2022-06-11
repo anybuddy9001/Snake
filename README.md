@@ -2,6 +2,9 @@
 
 This is my first python project! :)
 
+Feel free to try it out. \
+If you happen to find an error or have a new idea please open an issue.
+
 # Controls
 
     'Up'    or 'W' to move up
