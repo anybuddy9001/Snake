@@ -2,4 +2,4 @@
 .idea
 
 # Files
-Scores.json
+*.json
