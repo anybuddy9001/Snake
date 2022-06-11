@@ -33,14 +33,16 @@ class FontType(Enum):
 DISPLAY_SIZE: tuple
 STARTING_FOOD_AMOUNT: int
 CONNECTED_EDGES: bool
+
+# File references
 SCORE_FILE: str
 SESSION_ID: int
 
 # pygame
 CLOCK: pygame.time.Clock
 DISPLAY: pygame.Surface
-FONT_TYPE: FontType
 GAME_FONT: pygame.freetype.Font
+FONT_TYPE: FontType
 
 # Lists
 snake_list: list
@@ -109,6 +111,7 @@ def get_high_score():
         with open(SCORE_FILE) as fin:
             data = json.load(fin)
 
+        # Check if `SESSION_ID` has been initialised and the session is in save file
         try:
             if SESSION_ID == -1:
                 raise NameError
@@ -129,6 +132,7 @@ def get_high_score():
             starting_entry = '[' + new_entry + ']'
             data = json.loads(starting_entry)
             json.dump(data, fout, indent=4, ensure_ascii=False)
+        # Initialize runtime variables
         high_score = -1
         SESSION_ID = 0
 
@@ -142,7 +146,6 @@ def set_high_score(new_score: int):
 
         with open(SCORE_FILE, 'w') as fout:
             json.dump(data, fout, indent=4, ensure_ascii=False)
-            print("+1")
 
 
 def paint(points: int, draw_tooltip=False):
@@ -368,6 +371,7 @@ def main(argv: list):
 
     # Default values
     SCORE_FILE = "Scores.json"
+
     display_width = 600
     display_height = 600
     CONNECTED_EDGES = False
@@ -453,6 +457,18 @@ def main(argv: list):
         if opt in ('-e', "--connect-edges"):
             CONNECTED_EDGES = True
             print("Info: Edges are connected")
+        if opt == "--font-file":
+            font_file = arg
+            if not font_file[-4:] == '.ttf':
+                print(f"Fatal Error: {font_file} is not a font file! Required Suffix: '.ttf'")
+                exit(2)
+            if not font_file.rfind("Sans") == -1:
+                FONT_TYPE = FontType.SansSerif
+            if not font_file.rfind("Mono") == -1:
+                FONT_TYPE = FontType.Monospace
+                if display_width < 330:
+                    print("Critical: Display width below 330 causes tooltip to glitch")
+            print(f"Info: Set font to '{font_file}' of type {FONT_TYPE.name}")
         if opt == "--score-file":
             new_file = arg
             if new_file.endswith('.json'):
@@ -463,6 +479,7 @@ def main(argv: list):
                 print(f"Fatal: '{new_file}' is not a json file and/or has a different suffix!")
                 exit(2)
             print(f"Info: Set score file to '{SCORE_FILE}'")
+        # Catch ValueErrors
         try:
             if opt in ('-w', "--width"):
                 display_width = int(arg)
@@ -491,18 +508,6 @@ def main(argv: list):
             print("Fatal Error: Illegal argument values")
             print(msg_minimum)
             exit(2)
-        if opt == "--font-file":
-            font_file = arg
-            if not font_file[-4:] == '.ttf':
-                print(f"Fatal Error: {font_file} is not a font file! Required Suffix: '.ttf'")
-                exit(2)
-            if not font_file.rfind("Sans") == -1:
-                FONT_TYPE = FontType.SansSerif
-            if not font_file.rfind("Mono") == -1:
-                FONT_TYPE = FontType.Monospace
-                if display_width < 330:
-                    print("Critical: Display width below 330 causes tooltip to glitch")
-            print(f"Info: Set font to '{font_file}' of type {FONT_TYPE.name}")
 
     DISPLAY_SIZE = (-9 + display_width, - 9 + display_height)
 
