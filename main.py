@@ -33,6 +33,7 @@ class FontType(Enum):
 DISPLAY_SIZE: tuple
 STARTING_FOOD_AMOUNT: int
 CONNECTED_EDGES: bool
+SCORE_FILE: str
 SESSION_ID: int
 
 # pygame
@@ -105,7 +106,7 @@ def get_high_score():
                  '}')
 
     try:
-        with open("Scores.json") as fin:
+        with open(SCORE_FILE) as fin:
             data = json.load(fin)
 
         try:
@@ -116,7 +117,7 @@ def get_high_score():
 
         if SESSION_ID == -1:
             data.append(json.loads(new_entry))
-            with open("Scores.json", 'w') as fout:
+            with open(SCORE_FILE, 'w') as fout:
                 json.dump(data, fout, indent=4, ensure_ascii=False)
             high_score = -1
         else:
@@ -124,7 +125,7 @@ def get_high_score():
 
     except FileNotFoundError:
         # Create a new file from scratch
-        with open("Scores.json", 'w') as fout:
+        with open(SCORE_FILE, 'w') as fout:
             starting_entry = '[' + new_entry + ']'
             data = json.loads(starting_entry)
             json.dump(data, fout, indent=4, ensure_ascii=False)
@@ -134,12 +135,12 @@ def get_high_score():
 
 def set_high_score(new_score: int):
     if high_score < new_score:
-        with open("Scores.json", 'r') as fin:
+        with open(SCORE_FILE, 'r') as fin:
             data = json.load(fin)
 
         data[SESSION_ID]["high_score"] = new_score
 
-        with open("Scores.json", 'w') as fout:
+        with open(SCORE_FILE, 'w') as fout:
             json.dump(data, fout, indent=4, ensure_ascii=False)
             print("+1")
 
@@ -363,8 +364,10 @@ def main(argv: list):
     global CONNECTED_EDGES
     global STARTING_FOOD_AMOUNT
     global FONT_TYPE
+    global SCORE_FILE
 
     # Default values
+    SCORE_FILE = "Scores.json"
     display_width = 600
     display_height = 600
     CONNECTED_EDGES = False
@@ -382,6 +385,15 @@ def main(argv: list):
     Options: 
         -h  --help                      Print this help
         -c  --controls                  Show the controls for the game
+                                                
+        --score-file                    Sets the score file to be the specified file.
+                                        The file has to be a json file, but the '.json' can be omitted.
+                                        If the given file doesn't exist it will be created.
+                                        Example:
+                                            --score-file Scores.json
+                                            --score-file Scores
+                                            will both use (and create) Scores.json
+                                            
         
         -e  --connect-edges             Turn connected edges on. 
                                         (If the snake leaves on the right side it will come out on the left)
@@ -424,7 +436,8 @@ def main(argv: list):
         opts, args = getopt.getopt(argv, 'cew:h:f:',
                                    [
                                        "help", "controls", "connect-edges",
-                                       "width=", "height=", "font-file=", "starting-food="
+                                       "width=", "height=", "starting-food=",
+                                       "font-file=", "score-file="
                                    ])
     except getopt.GetoptError:
         print("Fatal Error: Unknown arguments")
@@ -440,6 +453,16 @@ def main(argv: list):
         if opt in ('-e', "--connect-edges"):
             CONNECTED_EDGES = True
             print("Info: Edges are connected")
+        if opt == "--score-file":
+            new_file = arg
+            if new_file.endswith('.json'):
+                SCORE_FILE = new_file
+            elif not ('.' in new_file):
+                SCORE_FILE = new_file + '.json'
+            else:
+                print(f"Fatal: '{new_file}' is not a json file and/or has a different suffix!")
+                exit(2)
+            print(f"Info: Set score file to '{SCORE_FILE}'")
         try:
             if opt in ('-w', "--width"):
                 display_width = int(arg)
