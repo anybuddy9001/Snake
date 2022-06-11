@@ -362,6 +362,35 @@ def game_loop():
         exit(0)
 
 
+def print_scores(full=False):
+    try:
+        with open(SCORE_FILE) as fin:
+            data = json.load(fin)
+
+        print(f"Found {len(data)} entries in `{SCORE_FILE}`")
+
+        if full:
+            for block in data:
+                print(f"Entry {data.index(block) + 1}:\n"
+                      f"    High Score: {block['high_score']}\n"
+                      f"    Display: {block['display_size']}\n"
+                      f"    Connected Edges: {bool(block['connected_edges'])}\n"
+                      f"    Starting Food Amount: {block['starting_food_amount']}"
+                      )
+        else:
+            get_high_score()
+            block = data[SESSION_ID]
+            print(f"Entry {data.index(block) + 1}:\n"
+                  f"    High Score: {block['high_score']}\n"
+                  f"    Display: {block['display_size']}\n"
+                  f"    Connected Edges: {bool(block['connected_edges'])}\n"
+                  f"    Starting Food Amount: {block['starting_food_amount']}"
+                  )
+    except OSError:
+        print(f"Fatal: Could not open '{SCORE_FILE}'. Maybe it doesn't exist?")
+        exit(2)
+
+
 def main(argv: list):
     global DISPLAY_SIZE
     global CONNECTED_EDGES
@@ -380,9 +409,12 @@ def main(argv: list):
     font_file = "LiberationSerif-Regular.ttf"
     FONT_TYPE = FontType.Serif
 
+    do_print_scores = False
+    full = False
+
     # Messages
     msg_help = f'''\
-    Usage: python main.py [Options]
+    Usage: python main.py [Options] [-Pp]
 
     Options: 
         -h  --help                      Print this help
@@ -415,6 +447,10 @@ def main(argv: list):
                                             Monospace: Display width below 330 causes tooltip to glitch
         
         -f  --starting-food             Sets the amount of food on startup [Min: 1; default: {STARTING_FOOD_AMOUNT}]
+
+        Print scores:                               
+        -p --print-scores               Prints the database entry with the current settings
+        -P --print-all-scores           Prints all entries from the current database
         '''
 
     msg_minimum = f'''\
@@ -435,11 +471,11 @@ def main(argv: list):
 
     # Parse commandline arguments
     try:
-        opts, args = getopt.getopt(argv, 'cew:h:f:',
+        opts, args = getopt.getopt(argv, 'cew:h:f:pP',
                                    [
                                        "help", "controls", "connect-edges",
                                        "width=", "height=", "starting-food=",
-                                       "font-file=", "score-file="
+                                       "font-file=", "score-file=", "print-scores", "print-all-scores"
                                    ])
     except getopt.GetoptError:
         print("Fatal Error: Unknown arguments")
@@ -477,6 +513,11 @@ def main(argv: list):
                 print(f"Fatal: '{new_file}' is not a json file and/or has a different suffix!")
                 exit(2)
             print(f"Info: Set score file to '{SCORE_FILE}'")
+        if opt in ('-p', "--print-scores"):
+            do_print_scores = True
+        if opt in ('-P', "--print-all-scores"):
+            do_print_scores = True
+            full = True
         # Catch ValueErrors
         try:
             if opt in ('-w', "--width"):
@@ -508,6 +549,13 @@ def main(argv: list):
             exit(2)
 
     DISPLAY_SIZE = (-9 + display_width, - 9 + display_height)
+
+    if do_print_scores:
+        if full:
+            print_scores(True)
+        else:
+            print_scores()
+        exit(0)
 
     init(font_file)
 

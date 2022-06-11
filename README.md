@@ -46,3 +46,7 @@ This is my first python project! :)
                                             Monospace: Display width below 330 causes tooltip to glitch
         
         -f  --starting-food             Sets the amount of food on startup [Min: 1; default: 1]
+
+        Print scores:                               
+        -p --print-scores               Prints the database entry with the current settings
+        -P --print-all-scores           Prints all entries from the current database
