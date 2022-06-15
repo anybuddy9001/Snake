@@ -89,7 +89,7 @@ def reset():
 
 def get_element_index(data) -> int:
     for element in data:
-        if element["display_size"] == str((DISPLAY_SIZE[0] + 9, DISPLAY_SIZE[1] + 9)):
+        if element["display_size"] == str((DISPLAY_SIZE[0], DISPLAY_SIZE[1])):
             if element["connected_edges"] == int(CONNECTED_EDGES):
                 if element["starting_food_amount"] == STARTING_FOOD_AMOUNT:
                     return data.index(element)
@@ -101,7 +101,7 @@ def get_high_score():
     global SESSION_ID
 
     new_entry = ('{'
-                 f'"display_size" : "{(DISPLAY_SIZE[0] + 9, DISPLAY_SIZE[1] + 9)}", '
+                 f'"display_size" : "{(DISPLAY_SIZE[0], DISPLAY_SIZE[1])}", '
                  f'"connected_edges" : {int(CONNECTED_EDGES)}, '
                  f'"starting_food_amount" : {STARTING_FOOD_AMOUNT}, '
                  '"high_score" : -1'
@@ -301,16 +301,16 @@ def game_loop():
 
         # Check for Wall
         if CONNECTED_EDGES:
-            if snake_x >= DISPLAY_SIZE[0] - 1:
+            if snake_x >= DISPLAY_SIZE[0]:
                 snake_x = 0
             elif snake_x < 0:
-                snake_x = DISPLAY_SIZE[0] - 11
-            elif snake_y >= DISPLAY_SIZE[1] - 1:
+                snake_x = DISPLAY_SIZE[0] - 10
+            elif snake_y >= DISPLAY_SIZE[1]:
                 snake_y = 0
             elif snake_y < 0:
-                snake_y = DISPLAY_SIZE[1] - 11
+                snake_y = DISPLAY_SIZE[1] - 10
         else:
-            if snake_x > DISPLAY_SIZE[0] - 10 or snake_y > DISPLAY_SIZE[1] or snake_x < 0 or snake_y < 0:
+            if snake_x >= DISPLAY_SIZE[0] or snake_y >= DISPLAY_SIZE[1] or snake_x < 0 or snake_y < 0:
                 die(points)
                 game_over = True
 
@@ -524,7 +524,7 @@ def main(argv: list):
                 display_width = int(arg)
                 deviation = display_width % 10
                 if not deviation == 0:
-                    print(f"Error: '{display_width}' is not dividable by 10")
+                    print(f"Error: '{display_width}' is not a multiple of 10")
                     display_width -= deviation
                 if display_width < 300:
                     raise ValueError
@@ -533,7 +533,7 @@ def main(argv: list):
                 display_height = int(arg)
                 deviation = display_height % 10
                 if not deviation == 0:
-                    print(f"Error: '{display_height}' is not dividable by 10")
+                    print(f"Error: '{display_height}' is not a multiple of 10")
                     display_height -= deviation
                 if display_width < 300:
                     raise ValueError
@@ -548,7 +548,7 @@ def main(argv: list):
             print(msg_minimum)
             exit(2)
 
-    DISPLAY_SIZE = (-9 + display_width, - 9 + display_height)
+    DISPLAY_SIZE = (display_width, display_height)
 
     if do_print_scores:
         if full:
