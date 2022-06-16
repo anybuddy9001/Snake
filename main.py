@@ -369,7 +369,7 @@ def print_scores(full=False):
         print(f"Found {len(data)} entries in `{SCORE_FILE}`")
 
         if full:
-            for block in data:
+            for block in sorted(data, key=lambda k: k['high_score'], reverse=True):
                 print(f"Entry {data.index(block) + 1}:\n"
                       f"    High Score: {block['high_score']}\n"
                       f"    Display: {block['display_size']}\n"
