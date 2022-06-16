@@ -1,5 +1,4 @@
-import sys
-import getopt
+import argparse
 import random
 from enum import Enum
 import json
@@ -391,170 +390,126 @@ def print_scores(full=False):
         exit(2)
 
 
-def main(argv: list):
+def parse():
     global DISPLAY_SIZE
     global CONNECTED_EDGES
     global STARTING_FOOD_AMOUNT
     global FONT_TYPE
     global SCORE_FILE
 
-    # Default values
-    SCORE_FILE = "Scores.json"
+    msg_minimum = "Minimum values:\n" \
+                  "    Window size:    300x300\n" \
+                  "    Apples:         1"
 
-    display_width = 600
-    display_height = 600
-    CONNECTED_EDGES = False
-    STARTING_FOOD_AMOUNT = 1
+    msg_controls = "Controls:\n" \
+                   "    'Up'    or 'W' to move up\n" \
+                   "    'Down'  or 'S' to move down\n" \
+                   "    'Left'  or 'A' to move left\n" \
+                   "    'Right' or 'D' to move right\n\n" \
+                   "    'Q' to quit the game"
 
-    font_file = "LiberationSerif-Regular.ttf"
-    FONT_TYPE = FontType.Serif
+    # Parse commandline with argparse
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 
-    do_print_scores = False
-    full = False
+    parser.add_argument('-c', "--controls", action="store_true", help="Show the controls for the game")
+    parser.add_argument('-e', "--connect_edges", action="store_true", default=0,
+                        help="Turn connected edges on.\n"
+                             "(If the snake leaves on the right side it will come out on the left)")
 
-    # Messages
-    msg_help = f'''\
-    Usage: python main.py [Options] [-Pp]
+    parser.add_argument('-W', "--width", type=int, default=600, help="Set display width  [Min: 300; default: 600]")
+    parser.add_argument('-H', "--height", type=int, default=600, help="Set display height  [Min: 300; default: 600]")
 
-    Options: 
-        -h  --help                      Print this help
-        -c  --controls                  Show the controls for the game
-                                                
-        --score-file                    Sets the score file to be the specified file. [default: {SCORE_FILE}]
-                                        The file has to be a json file, but the '.json' can be omitted.
-                                        If the given file doesn't exist it will be created.
-                                        Example:
-                                            --score-file Scores.json
-                                            --score-file Scores
-                                            will both use (and create) Scores.json
-                                            
-        
-        -e  --connect-edges             Turn connected edges on. 
-                                        (If the snake leaves on the right side it will come out on the left)
-        
-        Display sizes must be dividable by 10. On deviation the next smaller by 10 dividable number will be used!
-        For aesthetic/consistency reasons is the display always 9x9 pixels smaller than a given value! 
-        -w  --width  --display_width    Set display width  [Min: 300; default: {display_width}] 
-        -h  --height --display_height   Set display height [Min: 300; default: {display_height}]
-        
-        --font-file                     Sets the font file to be used to draw text. Be aware that character spacing can
-                                        differ between fonts and therefore alignment issues may occur!
-                                        SansSerif and Monospace fonts are supported as well, but they must contain 
-                                        'Mono'/'Sans' in their file name to be recognized as such!
-                                        Tested fonts: 'LiberationSerif-Regular.ttf', 'LiberationSans-Regular.ttf' and 
-                                        'LiberationMono-Regular.ttf'. [Default: {font_file}]
-                                        Known issues: 
-                                            Monospace: Display width below 330 causes tooltip to glitch
-        
-        -f  --starting-food             Sets the amount of food on startup [Min: 1; default: {STARTING_FOOD_AMOUNT}]
+    parser.add_argument("--font_file", type=str, default="LiberationSerif-Regular.ttf",
+                        help="Sets the font file to be used to draw text. [default: LiberationSerif-Regular.ttf]\n"
+                             "Be aware that character spacing can differ between fonts and therefore alignment "
+                             "issues may occur!\n"
+                             "All font types are supported, but they must contain 'Serif'/'Sans'/'Mono' "
+                             "in their file name to be recognized as such!\n"
+                             "Tested fonts:\n"
+                             "    'LiberationSerif-Regular.ttf', 'LiberationSans-Regular.ttf' and "
+                             "'LiberationMono-Regular.ttf'.\n"
+                             "Known issues:\n"
+                             "    Monospace: Display width below 320 causes visual errors on tooltip")
 
-        Print scores:                               
-        -p --print-scores               Prints the database entry with the current settings
-        -P --print-all-scores           Prints all entries from the current database
-        '''
+    parser.add_argument('-f', "--starting_food", type=int, default=1, help="Sets the amount of food on startup "
+                                                                           "[Min: 1; default: 1")
 
-    msg_minimum = f'''\
-    Minimum values for arguments:
-        Window size:    300x300 [default: {display_width}x{display_height}]
-        Apples:         1       [default: {STARTING_FOOD_AMOUNT}]
-    '''
+    parser.add_argument("--score_file", type=str, default="Scores.json",
+                        help="Sets the score file to be the specified file. [default: Scores.json]\n"
+                             "The file has to be a json file, but the '.json' can be omitted. "
+                             "If the given file doesn't exist it will be created.\n"
+                             "Example:\n"
+                             "    --score-file Scores.json\n"
+                             "    --score-file Scores\n"
+                             "    will both use (and create) Scores.json")
 
-    msg_controls = '''\
-    Controls:
-        'Up' or 'W' to move up
-        'Down' or 'S' to move down
-        'Left' or 'A' to move left
-        'Right' or 'D' to move right
-        
-        'Q' to quit the game
-    '''
+    parser.add_argument('-p', "--print_score", action="store_true", default=0,
+                        help="Prints the database entry with the current settings")
+    parser.add_argument('-P', "--print_all_scores", action="store_true", default=0,
+                        help="Prints all entries from the current database")
 
-    # Parse commandline arguments
+    args = parser.parse_args()
+
+    if args.controls:
+        print(msg_controls)
+        exit(0)
+
+    CONNECTED_EDGES = bool(args.connect_edges)
+    if CONNECTED_EDGES:
+        print("Info: Edges are connected")
+
+    display_width = args.width
+    display_height = args.height
+    STARTING_FOOD_AMOUNT = args.starting_food
     try:
-        opts, args = getopt.getopt(argv, 'cew:h:f:pP',
-                                   [
-                                       "help", "controls", "connect-edges",
-                                       "width=", "height=", "starting-food=",
-                                       "font-file=", "score-file=", "print-scores", "print-all-scores"
-                                   ])
-    except getopt.GetoptError:
-        print("Fatal Error: Unknown arguments")
-        print(msg_help)
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == "--help":
-            print(msg_help)
-            exit(0)
-        if opt in ('-c', "--controls"):
-            print(msg_controls)
-            exit(0)
-        if opt in ('-e', "--connect-edges"):
-            CONNECTED_EDGES = True
-            print("Info: Edges are connected")
-        if opt == "--font-file":
-            font_file = arg
-            if not font_file[-4:] == '.ttf':
-                print(f"Fatal Error: {font_file} is not a font file! Required Suffix: '.ttf'")
-                exit(2)
-            if not font_file.rfind("Sans") == -1:
-                FONT_TYPE = FontType.SansSerif
-            if not font_file.rfind("Mono") == -1:
-                FONT_TYPE = FontType.Monospace
-                if display_width < 330:
-                    print("Critical: Display width below 330 causes tooltip to glitch")
-            print(f"Info: Set font to '{font_file}' of type {FONT_TYPE.name}")
-        if opt == "--score-file":
-            new_file = arg
-            if new_file.endswith('.json'):
-                SCORE_FILE = new_file
-            elif not ('.' in new_file):
-                SCORE_FILE = new_file + '.json'
-            else:
-                print(f"Fatal: '{new_file}' is not a json file and/or has a different suffix!")
-                exit(2)
-            print(f"Info: Set score file to '{SCORE_FILE}'")
-        if opt in ('-p', "--print-scores"):
-            do_print_scores = True
-        if opt in ('-P', "--print-all-scores"):
-            do_print_scores = True
-            full = True
-        # Catch ValueErrors
-        try:
-            if opt in ('-w', "--width"):
-                display_width = int(arg)
-                deviation = display_width % 10
-                if not deviation == 0:
-                    print(f"Error: '{display_width}' is not a multiple of 10")
-                    display_width -= deviation
-                if display_width < 300:
-                    raise ValueError
-                print(f"Info: Set display width to '{str(display_width)}'")
-            if opt in ('-h', "--height"):
-                display_height = int(arg)
-                deviation = display_height % 10
-                if not deviation == 0:
-                    print(f"Error: '{display_height}' is not a multiple of 10")
-                    display_height -= deviation
-                if display_width < 300:
-                    raise ValueError
-                print(f"Info: Set display height to '{str(display_height)}'")
-            if opt in ('-f', "--starting-food"):
-                STARTING_FOOD_AMOUNT = int(arg)
-                if display_width < 1:
-                    raise ValueError
-                print(f"Info: Set starting apples amount to '{STARTING_FOOD_AMOUNT}'")
-        except ValueError:
-            print("Fatal Error: Illegal argument values")
-            print(msg_minimum)
-            exit(2)
+        for prop in (display_width, display_height):
+            deviation = prop % 10
+            if not deviation == 0:
+                print(f"Error: '{prop}' is not a multiple of 10")
+                prop -= deviation
+            if prop < 300:
+                raise ValueError
+            print(f"Info: Set display width to '{str(prop)}'")
+
+        if STARTING_FOOD_AMOUNT < 1:
+            raise ValueError
+        print(f"Info: Set starting apples amount to '{STARTING_FOOD_AMOUNT}'")
+    except ValueError:
+        print("Fatal Error: Illegal argument values")
+        print(msg_minimum)
+        exit(2)
+
+    font_file = args.font_file
+    if not font_file[-4:] == '.ttf':
+        print(f"Fatal Error: {font_file} is not a font file! Required Suffix: '.ttf'")
+        exit(2)
+    if not font_file.rfind("Serif") == -1:
+        FONT_TYPE = FontType.Serif
+    elif not font_file.rfind("Sans") == -1:
+        FONT_TYPE = FontType.SansSerif
+    elif not font_file.rfind("Mono") == -1:
+        FONT_TYPE = FontType.Monospace
+        if display_width < 320:
+            print("Critical: Display width below 320 causes visual errors on tooltip")
+    print(f"Info: Set font to '{font_file}' of type {FONT_TYPE.name}")
+
+    new_file = args.score_file
+    if new_file.endswith('.json'):
+        SCORE_FILE = new_file
+    elif not ('.' in new_file):
+        SCORE_FILE = new_file + '.json'
+    else:
+        print(f"Fatal: '{new_file}' is not a json file and/or has a different suffix!")
+        exit(2)
+    print(f"Info: Set score file to '{SCORE_FILE}'")
 
     DISPLAY_SIZE = (display_width, display_height)
 
-    if do_print_scores:
-        if full:
-            print_scores(True)
-        else:
-            print_scores()
+    if args.print_score:
+        print_scores()
+        exit(0)
+    if args.print_all_scores:
+        print_scores(True)
         exit(0)
 
     init(font_file)
@@ -565,4 +520,4 @@ def main(argv: list):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    parse()
